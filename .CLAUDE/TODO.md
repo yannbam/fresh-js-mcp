@@ -1,15 +1,15 @@
 # Project To-Do List
 
 ## High Priority
-- [ ] Implement basic MCP server using TypeScript SDK
-- [ ] Create JavaScript execution engine (VM2-based)
-- [ ] Implement one-time script execution tool
-- [ ] Add REPL session management
+- [x] Implement basic MCP server using TypeScript SDK
+- [x] Create JavaScript execution engine (VM2-based)
+- [x] Implement one-time script execution tool
+- [x] Add REPL session management
 
 
 ## Medium Priority
-- [ ] Add TypeScript transpilation
-- [ ] Implement NPM package management
+- [x] Add TypeScript transpilation
+- [x] Implement NPM package management
 - [ ] Add comprehensive error handling
 - [ ] Implement module importing system
 - [ ] Create test suite for core functionality
@@ -26,3 +26,5 @@
 - [x] Set up TypeScript configuration
 - [x] Add ESLint and testing frameworks
 - [x] Create .CLAUDE documentation directory
+- [x] Upgrade to MCP SDK 1.7.0
+- [x] Fix TypeScript configuration for compatibility
