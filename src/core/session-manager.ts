@@ -92,14 +92,7 @@ export class SessionManager {
       timestamp: new Date(),
     });
     
-    // Run the variable capture if available to ensure we capture all variables
-    if (typeof (session.context as any)._captureVariables === 'function') {
-      try {
-        (session.context as any)._captureVariables();
-      } catch (e) {
-        // Ignore errors in variable capture
-      }
-    }
+    // Variables are automatically tracked via _userVariables property
     
     return result;
   }

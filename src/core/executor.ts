@@ -88,6 +88,7 @@ export async function executeJavaScript(
       clearTimeout,
       setInterval,
       clearInterval,
+      _userVariables: {}, // Add a user variables container
       ...context,
       ...mergedOptions.additionalModules
     };
@@ -99,37 +100,18 @@ export async function executeJavaScript(
     // Wrap the code to properly handle statements (not just expressions)
     let wrappedCode: string;
     
-    // Add code to capture variables defined with const/let/var in a special property
-    // This helper will collect variables declared in the execution
+    // Add code to capture variables directly (no need to define properties)
     const captureVariablesCode = `
-      // Add a _userVariables property to track user-defined variables
-      Object.defineProperty(this, '_userVariables', {
-        value: {},
-        enumerable: false,
-        writable: true,
-        configurable: true
-      });
-      
-      // Add capture helper function
-      Object.defineProperty(this, '_captureVariables', {
-        value: function() {
-          // First get variables directly defined on 'this'
-          const userVars = {};
-          for (const key in this) {
-            if (!key.startsWith('_') && 
-                typeof this[key] !== 'function' &&
-                !['global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
-                 'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
-                 'performance', 'fetch', 'console'].includes(key)) {
-              userVars[key] = this[key];
-              // Also store in _userVariables for easier tracking
-              this._userVariables[key] = this[key];
-            }
-          }
-          return userVars;
-        },
-        enumerable: false
-      });
+      // Update _userVariables with user-defined variables
+      for (const key in this) {
+        if (!key.startsWith('_') && 
+            typeof this[key] !== 'function' &&
+            !['global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
+             'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
+             'performance', 'fetch', 'console'].includes(key)) {
+          this._userVariables[key] = this[key];
+        }
+      }
     `;
     
     if (mergedOptions.awaitPromises) {
