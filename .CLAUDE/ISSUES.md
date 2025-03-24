@@ -1,5 +1,7 @@
 # Known Issues and Considerations
 
+> **Note**: Some previously identified issues have been resolved in the latest version. See the 'Resolved Issues' section at the end of this document.
+
 This document tracks known issues, open questions, and technical challenges.
 
 ## Open Questions
@@ -32,19 +34,19 @@ This document tracks known issues, open questions, and technical challenges.
    - Potential issues: Deep promise chains, infinite loops, etc.
 
 2. **Module Resolution**
-   - Challenge: Resolving and loading modules in VM2 environment
-   - Current approach: Proxy Node.js module system
+   - Challenge: Resolving and loading modules in isolated environment
+   - Current approach: Direct file system access
    - Potential issues: Compatibility with certain modules, circular dependencies
 
 3. **Error Handling Clarity**
    - Challenge: Providing clear error messages for AI consumption
-   - Current approach: Enhanced error formatting
-   - Potential issues: Stack traces can be confusing or uninformative
+   - Current approach: Enhanced error formatting with stack traces
+   - Potential issues: Stack traces can still be complex for AI interpretation
 
-4. **TypeScript Compatibility**
-   - Challenge: Supporting all TypeScript features
+4. **TypeScript Return Values**
+   - Challenge: Properly returning values from TypeScript execution
    - Current approach: In-memory transpilation with TypeScript API
-   - Potential issues: Complex TypeScript features, type definitions
+   - Potential issues: Expression evaluation in TypeScript vs JavaScript
 
 ## Known Limitations
 
@@ -59,10 +61,30 @@ This document tracks known issues, open questions, and technical challenges.
    - Network-dependent operations subject to connectivity
 
 3. **Native Module Limitations**
-   - C++ Node.js addons may not work in VM2
-   - Some npm packages with native dependencies won't work
+   - Direct require calls aren't supported in execution environment
+   - Some npm packages can't be loaded directly
+   - Need alternative module loading mechanism
 
 4. **Security Boundaries**
-   - VM2 provides isolation but isn't a perfect sandbox
+   - Function constructor provides limited isolation
    - Potential for resource exhaustion attacks
    - Need for additional security measures
+
+5. **Session Variable Tracking**
+   - Session variables defined with `this.varName` persist but aren't visible in session info
+   - Local variables defined with const/let/var don't persist between executions
+   - Need improved context capture mechanism
+
+## Resolved Issues
+
+1. **Modern JavaScript Syntax Support**
+   - ✅ RESOLVED: Execution engine now supports modern JavaScript syntax (const, let)
+   - ✅ RESOLVED: Top-level return and throw statements now work correctly
+
+2. **Package Management**
+   - ✅ RESOLVED: Package installation and discovery now work consistently
+   - ✅ RESOLVED: Packages can be found in the correct directory after installation
+
+3. **Console Output Capture**
+   - ✅ RESOLVED: All console methods (log, error, warn, info) are now properly captured and displayed
+   - ✅ RESOLVED: Console output formatting improved for readability
