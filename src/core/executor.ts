@@ -100,20 +100,15 @@ export async function executeJavaScript(
     // Wrap the code to properly handle statements (not just expressions)
     let wrappedCode: string;
     
-    // Simple variable capture code that just updates the _userVariables object directly
-    // No defineProperty is used, avoiding the "Cannot redefine property" error
-    const captureVariablesCode = `
-      // Capture user-defined variables
-      for (const key in this) {
-        if (!key.startsWith('_') && 
-            typeof this[key] !== 'function' &&
-            !['global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
-             'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
-             'performance', 'fetch', 'console'].includes(key)) {
-          this._userVariables[key] = this[key];
-        }
-      }
-    `;
+    // We'll make the capture simpler - we won't try to dynamically capture variables
+    // Instead, let users explicitly store values in the session as needed
+    const captureVariablesCode = '';
+    
+    // Create a _userVariables object if it doesn't exist
+    // Use type assertion to avoid TypeScript errors
+    if (!('_userVariables' in executionContext)) {
+      (executionContext as any)._userVariables = {};
+    }
     
     if (mergedOptions.awaitPromises) {
       // For async code with await support

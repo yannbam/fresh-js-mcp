@@ -97,15 +97,25 @@ export function registerTypeScriptTools(server: McpServer) {
           };
         }
         
-        // Use a different approach to wrap TypeScript code
-        // Instead of modifying the transpiled code, execute it in a function wrapper
-        // This avoids trying to add return statements which can cause syntax errors
-        const jsCode = `
-          // Execute the TypeScript code in a function to properly handle return values
+        // Analyze the TypeScript output to see if the last statement is an expression
+        const lines = transpileResult.jsCode.trim().split('\n');
+        let jsCode = transpileResult.jsCode;
+        
+        if (lines.length > 0) {
+          const lastLine = lines[lines.length - 1].trim();
+          // If the last line is an expression (not ending with semicolon), make it a return
+          if (lastLine && !lastLine.endsWith(';') && !lastLine.endsWith('}') && 
+              !lastLine.includes('function') && !lastLine.includes('class')) {
+            // Replace the last line with a return statement
+            lines[lines.length - 1] = `return ${lastLine};`;
+            jsCode = lines.join('\n');
+          }
+        }
+        
+        // Wrap in a function to execute
+        jsCode = `
           (function() {
-            ${transpileResult.jsCode}
-            // Return undefined by default if no explicit return
-            return undefined;
+            ${jsCode}
           })();
         `;
         

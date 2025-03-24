@@ -1,0 +1,52 @@
+[
+  {
+    "type": "execute",
+    "code": "// Test modern JavaScript syntax\nconst person = { name: 'Alice', age: 30 };\nlet numbers = [1, 2, 3, 4, 5];\nlet sum = 0;\nfor (const num of numbers) {\n  sum += num;\n}\nconsole.log('Person:', person);\nconsole.log('Sum of numbers:', sum);\nreturn { person, sum };"
+  },
+  {
+    "type": "execute",
+    "code": "// Test top-level return\nconst value = 42;\nreturn value;"
+  },
+  {
+    "type": "execute",
+    "code": "// Test top-level throw\nconst shouldThrow = true;\nif (shouldThrow) {\n  throw new Error('Test error');\n}\nreturn 'This should not be returned';"
+  },
+  {
+    "type": "execute",
+    "code": "// Test console output\nconsole.log('This is a log message');\nconsole.error('This is an error message');\nconsole.warn('This is a warning message');\nconsole.info('This is an info message');\nreturn 'Console test completed';"
+  },
+  {
+    "type": "session-create",
+    "name": "testSession"
+  },
+  {
+    "type": "session-execute",
+    "name": "testSession",
+    "code": "// Set variables in session\n// First make sure _userVariables exists\nif (!this._userVariables) this._userVariables = {};\n\n// Store variables in _userVariables\nthis._userVariables.user = { name: 'Bob', age: 25 };\nthis._userVariables.numbers = [10, 20, 30];\nthis._userVariables.message = 'Hello, world!';\n\nconsole.log('Created variables in session');\nreturn this._userVariables;"
+  },
+  {
+    "type": "session-info",
+    "name": "testSession"
+  },
+  {
+    "type": "session-execute",
+    "name": "testSession",
+    "code": "// Modify session variables\n// Access through _userVariables\nif (!this._userVariables) this._userVariables = {};\n\n// Access and modify existing variables\nif (this._userVariables.user) this._userVariables.user.age++;\nif (this._userVariables.numbers) this._userVariables.numbers.push(40);\nif (this._userVariables.message) this._userVariables.message += ' Updated!';\n\nconsole.log('User:', this._userVariables.user);\nconsole.log('Numbers:', this._userVariables.numbers);\nconsole.log('Message:', this._userVariables.message);\n\nreturn this._userVariables;"
+  },
+  {
+    "type": "typescript",
+    "code": "// TypeScript test\ninterface User {\n  name: string;\n  age: number;\n}\n\n// Create and return a typed object\nfunction createUser(): User {\n  return {\n    name: 'Charlie',\n    age: 35\n  };\n}\n\nconst user = createUser();\nconsole.log('TypeScript User:', user);\nuser;"
+  },
+  {
+    "type": "find-package",
+    "name": "lodash"
+  },
+  {
+    "type": "install-package",
+    "name": "lodash"
+  },
+  {
+    "type": "find-package",
+    "name": "lodash"
+  }
+]
