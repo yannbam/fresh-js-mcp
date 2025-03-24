@@ -92,14 +92,9 @@ export class SessionManager {
       timestamp: new Date(),
     });
     
-    return result;
-    
-    // Add to history
-    session.history.push({
-      code,
-      result,
-      timestamp: new Date(),
-    });
+    // Make sure the context is properly updated with any new variables
+    // that might have been set during execution
+    // (This is handled automatically since the context is passed by reference)
     
     return result;
   }

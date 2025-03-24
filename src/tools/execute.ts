@@ -39,7 +39,7 @@ export function registerExecutionTools(server: McpServer) {
         let response = '';
         
         // Add console output if any
-        if (result.consoleOutput) {
+        if (result.consoleOutput && result.consoleOutput.trim()) {
           response += `Console Output:\n${result.consoleOutput}\n\n`;
         }
         

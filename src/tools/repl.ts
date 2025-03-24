@@ -91,7 +91,7 @@ export function registerSessionTools(server: McpServer) {
         let response = '';
         
         // Add console output if any
-        if (result.consoleOutput) {
+        if (result.consoleOutput && result.consoleOutput.trim()) {
           response += `Console Output:\n${result.consoleOutput}\n\n`;
         }
         
@@ -157,11 +157,19 @@ export function registerSessionTools(server: McpServer) {
           const age = new Date().getTime() - session.createdAt.getTime();
           const lastAccessed = new Date().getTime() - session.lastAccessedAt.getTime();
           
+          // Filter out internal properties and functions
+          const variables = Object.keys((session.context as Record<string, unknown>) || {})
+            .filter(key => 
+              // Filter out internal properties that start with _ or are functions
+              !key.startsWith('_') && 
+              typeof (session.context as Record<string, unknown>)[key] !== 'function'
+            );
+          
           return `Session ID: ${session.id}
 Created: ${session.createdAt.toISOString()} (${formatDuration(age)} ago)
 Last Accessed: ${session.lastAccessedAt.toISOString()} (${formatDuration(lastAccessed)} ago)
 History Entries: ${session.history.length}
-Variables: ${Object.keys((session.context as Record<string, unknown>) || {}).join(', ') || 'none'}
+Variables: ${variables.join(', ') || 'none'}
 `;
         });
         
@@ -261,7 +269,15 @@ Variables: ${Object.keys((session.context as Record<string, unknown>) || {}).joi
         const lastAccessed = new Date().getTime() - session.lastAccessedAt.getTime();
         
         // Get variables in the context
-        const variables = Object.entries((session.context as Record<string, unknown>) || {})
+        // Filter out internal properties and functions
+        const contextVars = Object.entries((session.context as Record<string, unknown>) || {})
+          .filter(([key, value]) => 
+            // Filter out internal properties that start with _ or are functions
+            !key.startsWith('_') && 
+            typeof value !== 'function'
+          );
+            
+        const variables = contextVars
           .map(([key, value]) => {
             let valueStr: string;
             try {
