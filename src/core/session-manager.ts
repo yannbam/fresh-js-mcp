@@ -70,30 +70,29 @@ export class SessionManager {
     code: string,
     options: ExecutionOptions = {},
   ): Promise<ExecutionResult> {
-    const session = this.getSession(sessionId);
-    
-    if (!session) {
+    // Check if session exists
+    if (!this.sessions.has(sessionId)) {
       throw new Error(`Session not found: ${sessionId}`);
     }
     
-    // Execute the code with the session's context
+    // Get the session directly from the map (we already know it exists)
+    const session = this.sessions.get(sessionId)!;
+    
+    // Update last accessed time
+    session.lastAccessedAt = new Date();
+    
+    // Every time a session is executed, we create a closure with access to the session's context
+    // This lets user code access variables defined in previous executions
     const result = await executeJavaScript(code, session.context as Record<string, unknown>, options);
     
-    // Update session context with any new values
-    if (result.success && typeof result.result === 'object' && result.result !== null) {
-      try {
-        // Extract any variables assigned in the global scope
-        const contextUpdates = result.result as Record<string, unknown>;
-        Object.entries(contextUpdates).forEach(([key, value]) => {
-          if (key !== 'undefined') {
-            (session.context as Record<string, unknown>)[key] = value;
-          }
-        });
-      } catch (error) {
-        // If there's an error updating the context, we'll just continue
-        // This could happen if the result is not an object that can be used to update context
-      }
-    }
+    // Update the session history
+    session.history.push({
+      code,
+      result,
+      timestamp: new Date(),
+    });
+    
+    return result;
     
     // Add to history
     session.history.push({

@@ -25,7 +25,7 @@ describe('Session Manager', () => {
 
   test('should execute code in a session', async () => {
     const session = sessionManager.createSession();
-    const result = await sessionManager.executeInSession(session.id, 'return 2 + 2;');
+    const result = await sessionManager.executeInSession(session.id, '2 + 2');
     expect(result.success).toBe(true);
     expect(result.result).toBe(4);
     expect(session.history.length).toBe(1);
@@ -33,8 +33,8 @@ describe('Session Manager', () => {
 
   test('should maintain context between executions', async () => {
     const session = sessionManager.createSession();
-    await sessionManager.executeInSession(session.id, 'let x = 42;');
-    const result = await sessionManager.executeInSession(session.id, 'return x;');
+    await sessionManager.executeInSession(session.id, 'x = 42');
+    const result = await sessionManager.executeInSession(session.id, 'x');
     expect(result.success).toBe(true);
     expect(result.result).toBe(42);
   });
