@@ -1,0 +1,28 @@
+[
+  {
+    "type": "execute",
+    "code": "const x = 40; const y = 2; return x + y;"
+  },
+  {
+    "type": "typescript",
+    "code": "interface Person { name: string; age: number; }; const p: Person = { name: 'Alice', age: 30 }; p;"
+  },
+  {
+    "type": "session-create",
+    "name": "testSession"
+  },
+  {
+    "type": "session-execute",
+    "name": "testSession",
+    "code": "this.counter = 1; return this.counter;"
+  },
+  {
+    "type": "session-execute",
+    "name": "testSession",
+    "code": "this.counter++; return this.counter;"
+  },
+  {
+    "type": "session-info",
+    "name": "testSession"
+  }
+]

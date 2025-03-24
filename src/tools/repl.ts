@@ -157,19 +157,33 @@ export function registerSessionTools(server: McpServer) {
           const age = new Date().getTime() - session.createdAt.getTime();
           const lastAccessed = new Date().getTime() - session.lastAccessedAt.getTime();
           
-          // Filter out internal properties and functions
-          const variables = Object.keys((session.context as Record<string, unknown>) || {})
-            .filter(key => 
-              // Filter out internal properties that start with _ or are functions
+          // Check for user variables
+          const context = session.context as Record<string, unknown>;
+          let userVars: string[] = [];
+          
+          // First check for _userVariables property
+          if (context._userVariables && typeof context._userVariables === 'object') {
+            userVars = Object.keys(context._userVariables as Record<string, unknown>);
+          }
+          
+          // If no variables found in _userVariables, fall back to checking context directly
+          if (userVars.length === 0) {
+            userVars = Object.keys(context).filter(key => 
               !key.startsWith('_') && 
-              typeof (session.context as Record<string, unknown>)[key] !== 'function'
+              typeof context[key] !== 'function' &&
+              ![
+                'global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
+                'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
+                'performance', 'fetch', 'console'
+              ].includes(key)
             );
+          }
           
           return `Session ID: ${session.id}
 Created: ${session.createdAt.toISOString()} (${formatDuration(age)} ago)
 Last Accessed: ${session.lastAccessedAt.toISOString()} (${formatDuration(lastAccessed)} ago)
 History Entries: ${session.history.length}
-Variables: ${variables.join(', ') || 'none'}
+Variables: ${userVars.join(', ') || 'none'}
 `;
         });
         
@@ -269,28 +283,61 @@ Variables: ${variables.join(', ') || 'none'}
         const lastAccessed = new Date().getTime() - session.lastAccessedAt.getTime();
         
         // Get variables in the context
-        // Filter out internal properties and functions
-        const contextVars = Object.entries((session.context as Record<string, unknown>) || {})
-          .filter(([key, value]) => 
-            // Filter out internal properties that start with _ or are functions
-            !key.startsWith('_') && 
-            typeof value !== 'function'
-          );
-            
-        const variables = contextVars
-          .map(([key, value]) => {
-            let valueStr: string;
-            try {
-              valueStr = JSON.stringify(value);
-              if (valueStr.length > 100) {
-                valueStr = valueStr.substring(0, 97) + '...';
-              }
-            } catch (err) {
-              valueStr = String(value);
-            }
-            return `${key}: ${valueStr} (${typeof value})`;
-          })
-          .join('\n');
+        // Check for user variables in the _userVariables container
+        let variables = 'No user-defined variables';
+        const context = session.context as Record<string, unknown>;
+        
+        // Check if the session has a _userVariables property and if it has any entries
+        if (context._userVariables && typeof context._userVariables === 'object') {
+          const userVarsObj = context._userVariables as Record<string, unknown>;
+          const userVarsEntries = Object.entries(userVarsObj);
+          
+          if (userVarsEntries.length > 0) {
+            variables = userVarsEntries
+              .map(([key, value]) => {
+                let valueStr: string;
+                try {
+                  valueStr = JSON.stringify(value);
+                  if (valueStr.length > 100) {
+                    valueStr = valueStr.substring(0, 97) + '...';
+                  }
+                } catch (err) {
+                  valueStr = String(value);
+                }
+                return `${key}: ${valueStr} (${typeof value})`;
+              })
+              .join('\n');
+          }
+        } else {
+          // Fallback: Look for variables directly in the context
+          const userVarEntries = Object.entries(context)
+            .filter(([key, value]) => 
+              !key.startsWith('_') && 
+              typeof value !== 'function' &&
+              ![
+                'global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
+                'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
+                'performance', 'fetch', 'console'
+              ].includes(key)
+            );
+          
+          if (userVarEntries.length > 0) {
+            variables = userVarEntries
+              .map(([key, value]) => {
+                let valueStr: string;
+                try {
+                  valueStr = JSON.stringify(value);
+                  if (valueStr.length > 100) {
+                    valueStr = valueStr.substring(0, 97) + '...';
+                  }
+                } catch (err) {
+                  valueStr = String(value);
+                }
+                return `${key}: ${valueStr} (${typeof value})`;
+              })
+              .join('\n');
+          }
+        }
         
         // Get recent history
         const recentHistory = session.history

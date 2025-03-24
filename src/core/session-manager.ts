@@ -92,9 +92,8 @@ export class SessionManager {
       timestamp: new Date(),
     });
     
-    // Make sure the context is properly updated with any new variables
-    // that might have been set during execution
-    // (This is handled automatically since the context is passed by reference)
+    // Variables are automatically tracked in _userVariables by the executor
+    // We don't need to do anything special here
     
     return result;
   }

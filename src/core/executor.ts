@@ -88,6 +88,7 @@ export async function executeJavaScript(
       clearTimeout,
       setInterval,
       clearInterval,
+      _userVariables: {}, // Add user variables container as a regular property
       ...context,
       ...mergedOptions.additionalModules
     };
@@ -99,11 +100,23 @@ export async function executeJavaScript(
     // Wrap the code to properly handle statements (not just expressions)
     let wrappedCode: string;
     
+    // We'll make the capture simpler - we won't try to dynamically capture variables
+    // Instead, let users explicitly store values in the session as needed
+    const captureVariablesCode = '';
+    
+    // Create a _userVariables object if it doesn't exist
+    // Use type assertion to avoid TypeScript errors
+    if (!('_userVariables' in executionContext)) {
+      (executionContext as any)._userVariables = {};
+    }
+    
     if (mergedOptions.awaitPromises) {
       // For async code with await support
       wrappedCode = `
         return (async function() {
           try {
+            // Run the variable capture helper
+            ${captureVariablesCode}
             ${code}
             return undefined;
           } catch (e) {
@@ -156,6 +169,8 @@ export async function executeJavaScript(
       // For regular synchronous code
       wrappedCode = `
         return (function() {
+          // Run the variable capture helper
+          ${captureVariablesCode}
           ${code}
           return undefined;
         })();

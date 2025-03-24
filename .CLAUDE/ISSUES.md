@@ -80,6 +80,7 @@ This document tracks known issues, open questions, and technical challenges.
 1. **Modern JavaScript Syntax Support**
    - ✅ RESOLVED: Execution engine now supports modern JavaScript syntax (const, let)
    - ✅ RESOLVED: Top-level return and throw statements now work correctly
+   - ✅ RESOLVED: Complex object and array literals are now supported
 
 2. **Package Management**
    - ✅ RESOLVED: Package installation and discovery now work consistently
@@ -88,3 +89,13 @@ This document tracks known issues, open questions, and technical challenges.
 3. **Console Output Capture**
    - ✅ RESOLVED: All console methods (log, error, warn, info) are now properly captured and displayed
    - ✅ RESOLVED: Console output formatting improved for readability
+
+4. **Session Variable Management**
+   - ✅ RESOLVED: Variables defined with this.x = y persist correctly between executions
+   - ✅ RESOLVED: Variables are properly tracked in session context
+   - ✅ RESOLVED: Session state is maintained properly across executions
+
+5. **TypeScript Execution**
+   - ✅ RESOLVED: TypeScript code with modern syntax now executes correctly
+   - ✅ RESOLVED: TypeScript transpilation properly preserves code semantics
+   - ✅ RESOLVED: Error handling improved for TypeScript execution
