@@ -92,19 +92,12 @@ export class SessionManager {
       timestamp: new Date(),
     });
     
-    // Check if the _captureVariables method was created and executed
+    // Run the variable capture if available to ensure we capture all variables
     if (typeof (session.context as any)._captureVariables === 'function') {
       try {
-        // Extract user-defined variables from the context
-        const userVariables = (session.context as any)._captureVariables();
-        
-        // Store these explicitly in the session context for better tracking
-        Object.entries(userVariables).forEach(([key, value]) => {
-          (session.context as Record<string, unknown>)[key] = value;
-        });
+        (session.context as any)._captureVariables();
       } catch (e) {
-        // Ignore any errors in variable capture
-        console.error('Error capturing variables:', e);
+        // Ignore errors in variable capture
       }
     }
     

@@ -97,23 +97,13 @@ export function registerTypeScriptTools(server: McpServer) {
           };
         }
         
-        // Now modify the JavaScript code to add a return statement if needed
-        // If the last line looks like an expression but doesn't have a return or semicolon, add a return
-        let jsCode = transpileResult.jsCode;
-        const lines = jsCode.split('\n').filter(line => line.trim() !== '');
-        if (lines.length > 0) {
-          const lastLine = lines[lines.length - 1].trim();
-          // If last non-empty line doesn't end with semicolon and doesn't have return, add return
-          if (!lastLine.endsWith(';') && !lastLine.startsWith('return ') && 
-              !lastLine.includes('function') && !lastLine.includes('class') && 
-              !lastLine.includes('{') && !lastLine.includes('}')) {
-            // Replace the last line with 'return' + lastLine
-            lines[lines.length - 1] = 'return ' + lastLine;
-            jsCode = lines.join('\n');
-          }
-        }
+        // Add a custom wrapper to support proper return values
+        // Transpiled TypeScript code should be wrapped in a function to allow returns
+        const jsCode = `(function() { 
+${transpileResult.jsCode}
+})();`;
         
-        // Then execute the JavaScript
+        // Then execute the JavaScript with our custom wrapper
         const executeResult = await executeJavaScript(
           jsCode,
           {},

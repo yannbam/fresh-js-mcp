@@ -99,23 +99,37 @@ export async function executeJavaScript(
     // Wrap the code to properly handle statements (not just expressions)
     let wrappedCode: string;
     
-    // Add code to capture variables defined with const/let/var
+    // Add code to capture variables defined with const/let/var in a special property
     // This helper will collect variables declared in the execution
     const captureVariablesCode = `
-      // Add a _captureVariables method to the context
-      this._captureVariables = function() {
-        // Return a copy of non-function, non-internal properties
-        return Object.fromEntries(
-          Object.entries(this)
-            .filter(([key, value]) => 
-              !key.startsWith('_') && 
-              typeof value !== 'function' &&
-              !['global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
-               'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
-               'performance', 'fetch', 'console'].includes(key)
-            )
-        );
-      };
+      // Add a _userVariables property to track user-defined variables
+      Object.defineProperty(this, '_userVariables', {
+        value: {},
+        enumerable: false,
+        writable: true,
+        configurable: true
+      });
+      
+      // Add capture helper function
+      Object.defineProperty(this, '_captureVariables', {
+        value: function() {
+          // First get variables directly defined on 'this'
+          const userVars = {};
+          for (const key in this) {
+            if (!key.startsWith('_') && 
+                typeof this[key] !== 'function' &&
+                !['global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
+                 'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
+                 'performance', 'fetch', 'console'].includes(key)) {
+              userVars[key] = this[key];
+              // Also store in _userVariables for easier tracking
+              this._userVariables[key] = this[key];
+            }
+          }
+          return userVars;
+        },
+        enumerable: false
+      });
     `;
     
     if (mergedOptions.awaitPromises) {
