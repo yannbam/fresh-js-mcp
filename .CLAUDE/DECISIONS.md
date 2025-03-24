@@ -4,21 +4,28 @@ This document records important technical decisions made during the project, the
 
 ## Core Design Decisions
 
-### 1. VM2 for JavaScript Execution
+### 1. Function Constructor for JavaScript Execution (Revised Decision)
 
-**Decision**: Use VM2 for JavaScript execution instead of Node's native VM module.
+**Decision**: Use JavaScript's Function constructor for code execution instead of VM2.
 
 **Alternatives Considered**:
+- VM2 library
 - Node.js native VM module
 - Direct eval()
 - Creating child processes
 
 **Rationale**:
-- VM2 provides better isolation than Node's native VM
-- Offers more configuration options for security
-- Supports contextifying objects for sharing between VM and host
-- Better isolation than direct eval()
-- More efficient than spawning child processes
+- Simpler implementation with fewer dependencies
+- Better compatibility with Node.js APIs (setTimeout, etc.)
+- Improved handling of promises and asynchronous code
+- More reliable test execution
+- No lingering handles or resources
+- More maintainable codebase
+
+**Tradeoffs**:
+- Less sandboxing/isolation compared to VM2
+- Code has full access to Node.js environment
+- Appropriate for trusted code execution scenarios
 
 ### 2. Synchronous Promise Resolution
 

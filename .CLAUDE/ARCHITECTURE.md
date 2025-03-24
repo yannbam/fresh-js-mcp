@@ -5,7 +5,7 @@ The JavaScript MCP server follows a layered architecture to separate concerns an
 
 ## Layers
 1. **MCP Protocol Layer**: Handles client communication using the Model Context Protocol
-2. **JavaScript Execution Layer**: Executes JavaScript code with isolation and safety
+2. **JavaScript Execution Layer**: Executes JavaScript code in a controlled environment
 3. **Resource Management Layer**: Manages packages and TypeScript transpilation
 4. **Session Management Layer**: Maintains REPL sessions with persistent state
 5. **Core Infrastructure**: Provides common utilities and helpers
@@ -18,10 +18,11 @@ The JavaScript MCP server follows a layered architecture to separate concerns an
 - Handles client communication
 
 ### JavaScript Execution Layer (src/core/executor.ts)
-- Provides JavaScript execution environment using VM2
+- Provides JavaScript execution environment using Function constructor
 - Handles both one-time execution and REPL sessions
 - Captures console output and errors
 - Auto-awaits promises with timeouts
+- Properly manages timeouts to prevent resource leaks
 
 ### Resource Management Layer
 
@@ -32,6 +33,7 @@ The JavaScript MCP server follows a layered architecture to separate concerns an
 - Maintains REPL sessions with state
 - Handles session creation, listing and deletion
 - Manages session timeouts and cleanup
+- Preserves context between executions
 
 ## Data Flow
 
@@ -42,8 +44,8 @@ The JavaScript MCP server follows a layered architecture to separate concerns an
 
 ## Design Decisions
 
-### VM2 for Isolation
-Using VM2 instead of Node's native VM module for better isolation and security.
+### Function Constructor for Execution
+Using JavaScript's Function constructor for code execution, providing better compatibility and simpler implementation than VM2.
 
 ### Auto-awaiting Promises
 All promises are automatically awaited to provide synchronous-like behavior within the tool call model.
