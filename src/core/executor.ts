@@ -88,7 +88,7 @@ export async function executeJavaScript(
       clearTimeout,
       setInterval,
       clearInterval,
-      _userVariables: {}, // Add a user variables container
+      _userVariables: {}, // Add user variables container as a regular property
       ...context,
       ...mergedOptions.additionalModules
     };
@@ -100,9 +100,10 @@ export async function executeJavaScript(
     // Wrap the code to properly handle statements (not just expressions)
     let wrappedCode: string;
     
-    // Add code to capture variables directly (no need to define properties)
+    // Simple variable capture code that just updates the _userVariables object directly
+    // No defineProperty is used, avoiding the "Cannot redefine property" error
     const captureVariablesCode = `
-      // Update _userVariables with user-defined variables
+      // Capture user-defined variables
       for (const key in this) {
         if (!key.startsWith('_') && 
             typeof this[key] !== 'function' &&

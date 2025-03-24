@@ -92,7 +92,8 @@ export class SessionManager {
       timestamp: new Date(),
     });
     
-    // Variables are automatically tracked via _userVariables property
+    // Variables are automatically tracked in _userVariables by the executor
+    // We don't need to do anything special here
     
     return result;
   }

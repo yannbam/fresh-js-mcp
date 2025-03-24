@@ -97,13 +97,19 @@ export function registerTypeScriptTools(server: McpServer) {
           };
         }
         
-        // Add a custom wrapper to support proper return values
-        // Transpiled TypeScript code should be wrapped in a function to allow returns
-        const jsCode = `(function() { 
-${transpileResult.jsCode}
-})();`;
+        // Use a different approach to wrap TypeScript code
+        // Instead of modifying the transpiled code, execute it in a function wrapper
+        // This avoids trying to add return statements which can cause syntax errors
+        const jsCode = `
+          // Execute the TypeScript code in a function to properly handle return values
+          (function() {
+            ${transpileResult.jsCode}
+            // Return undefined by default if no explicit return
+            return undefined;
+          })();
+        `;
         
-        // Then execute the JavaScript with our custom wrapper
+        // Then execute the JavaScript with our wrapper
         const executeResult = await executeJavaScript(
           jsCode,
           {},

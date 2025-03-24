@@ -157,15 +157,17 @@ export function registerSessionTools(server: McpServer) {
           const age = new Date().getTime() - session.createdAt.getTime();
           const lastAccessed = new Date().getTime() - session.lastAccessedAt.getTime();
           
-          // Check for user-defined variables
+          // Check for user variables
           const context = session.context as Record<string, unknown>;
           let userVars: string[] = [];
           
-          // First check if the session has exposed variables in _userVariables
+          // First check for _userVariables property
           if (context._userVariables && typeof context._userVariables === 'object') {
             userVars = Object.keys(context._userVariables as Record<string, unknown>);
-          } else {
-            // If not, we'll find user variables directly in the context
+          }
+          
+          // If no variables found in _userVariables, fall back to checking context directly
+          if (userVars.length === 0) {
             userVars = Object.keys(context).filter(key => 
               !key.startsWith('_') && 
               typeof context[key] !== 'function' &&
@@ -281,29 +283,33 @@ Variables: ${userVars.join(', ') || 'none'}
         const lastAccessed = new Date().getTime() - session.lastAccessedAt.getTime();
         
         // Get variables in the context
-        // Check if the session has stored _userVariables
+        // Check for user variables in the _userVariables container
         let variables = 'No user-defined variables';
         const context = session.context as Record<string, unknown>;
         
-        // First check if the session has exposed variables in _userVariables
+        // Check if the session has a _userVariables property and if it has any entries
         if (context._userVariables && typeof context._userVariables === 'object') {
-          const userVars = context._userVariables as Record<string, unknown>;
-          variables = Object.entries(userVars)
-            .map(([key, value]) => {
-              let valueStr: string;
-              try {
-                valueStr = JSON.stringify(value);
-                if (valueStr.length > 100) {
-                  valueStr = valueStr.substring(0, 97) + '...';
+          const userVarsObj = context._userVariables as Record<string, unknown>;
+          const userVarsEntries = Object.entries(userVarsObj);
+          
+          if (userVarsEntries.length > 0) {
+            variables = userVarsEntries
+              .map(([key, value]) => {
+                let valueStr: string;
+                try {
+                  valueStr = JSON.stringify(value);
+                  if (valueStr.length > 100) {
+                    valueStr = valueStr.substring(0, 97) + '...';
+                  }
+                } catch (err) {
+                  valueStr = String(value);
                 }
-              } catch (err) {
-                valueStr = String(value);
-              }
-              return `${key}: ${valueStr} (${typeof value})`;
-            })
-            .join('\n');
+                return `${key}: ${valueStr} (${typeof value})`;
+              })
+              .join('\n');
+          }
         } else {
-          // If not, we'll find user variables directly in the context
+          // Fallback: Look for variables directly in the context
           const userVarEntries = Object.entries(context)
             .filter(([key, value]) => 
               !key.startsWith('_') && 
