@@ -19,7 +19,7 @@ export async function createServer() {
 
   // Add a simple status tool for testing
   server.tool(
-    'status',
+    'js-status',
     'Get the current status of the JavaScript MCP server',
     {},
     async () => {

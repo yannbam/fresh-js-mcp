@@ -11,7 +11,7 @@ import { ExecutionOptions } from '../types';
 export function registerExecutionTools(server: McpServer) {
   // Tool for one-time JavaScript execution
   server.tool(
-    'execute',
+    'js-execute',
     'Execute JavaScript code and return the result',
     {
       code: z.string().describe('The JavaScript code to execute'),

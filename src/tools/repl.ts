@@ -11,7 +11,7 @@ import { ExecutionOptions, Session } from '../types';
 export function registerSessionTools(server: McpServer) {
   // Create a new REPL session
   server.tool(
-    'createSession',
+    'js-createSession',
     'Create a new JavaScript REPL session',
     {
       expiresIn: z.number().optional().describe('Session expiration time in milliseconds (default: 1 hour)'),
@@ -48,7 +48,7 @@ export function registerSessionTools(server: McpServer) {
   
   // Execute code in a session
   server.tool(
-    'executeInSession',
+    'js-executeInSession',
     'Execute JavaScript code in an existing REPL session',
     {
       sessionId: z.string().describe('Session ID'),
@@ -135,7 +135,7 @@ export function registerSessionTools(server: McpServer) {
   
   // List all active sessions
   server.tool(
-    'listSessions',
+    'js-listSessions',
     'List all active REPL sessions',
     {},
     async () => {
@@ -190,7 +190,7 @@ Variables: ${Object.keys((session.context as Record<string, unknown>) || {}).joi
   
   // Delete a session
   server.tool(
-    'deleteSession',
+    'js-deleteSession',
     'Delete a REPL session',
     {
       sessionId: z.string().describe('Session ID'),
@@ -236,7 +236,7 @@ Variables: ${Object.keys((session.context as Record<string, unknown>) || {}).joi
   
   // Get session details
   server.tool(
-    'sessionInfo',
+    'js-sessionInfo',
     'Get detailed information about a session',
     {
       sessionId: z.string().describe('Session ID'),

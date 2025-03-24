@@ -15,7 +15,7 @@ export function registerPackageTools(server: McpServer) {
   
   // Install an NPM package
   server.tool(
-    'installPackage',
+    'js-installPackage',
     'Install an NPM package',
     {
       name: z.string().describe('Name of the package to install'),
@@ -66,7 +66,7 @@ export function registerPackageTools(server: McpServer) {
   
   // Check if a package is installed
   server.tool(
-    'findPackage',
+    'js-findPackage',
     'Check if an NPM package is installed',
     {
       name: z.string().describe('Name of the package to find'),

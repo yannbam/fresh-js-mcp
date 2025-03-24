@@ -11,7 +11,7 @@ import { executeJavaScript } from '../core/executor';
 export function registerTypeScriptTools(server: McpServer) {
   // Transpile TypeScript to JavaScript
   server.tool(
-    'transpile',
+    'js-transpile',
     'Transpile TypeScript code to JavaScript',
     {
       code: z.string().describe('TypeScript code to transpile'),
@@ -68,7 +68,7 @@ export function registerTypeScriptTools(server: McpServer) {
   
   // Execute TypeScript code directly
   server.tool(
-    'executeTypeScript',
+    'js-executeTypeScript',
     'Execute TypeScript code (transpile + execute)',
     {
       code: z.string().describe('TypeScript code to execute'),
