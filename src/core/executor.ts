@@ -99,11 +99,32 @@ export async function executeJavaScript(
     // Wrap the code to properly handle statements (not just expressions)
     let wrappedCode: string;
     
+    // Add code to capture variables defined with const/let/var
+    // This helper will collect variables declared in the execution
+    const captureVariablesCode = `
+      // Add a _captureVariables method to the context
+      this._captureVariables = function() {
+        // Return a copy of non-function, non-internal properties
+        return Object.fromEntries(
+          Object.entries(this)
+            .filter(([key, value]) => 
+              !key.startsWith('_') && 
+              typeof value !== 'function' &&
+              !['global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
+               'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
+               'performance', 'fetch', 'console'].includes(key)
+            )
+        );
+      };
+    `;
+    
     if (mergedOptions.awaitPromises) {
       // For async code with await support
       wrappedCode = `
         return (async function() {
           try {
+            // Run the variable capture helper
+            ${captureVariablesCode}
             ${code}
             return undefined;
           } catch (e) {
@@ -156,6 +177,8 @@ export async function executeJavaScript(
       // For regular synchronous code
       wrappedCode = `
         return (function() {
+          // Run the variable capture helper
+          ${captureVariablesCode}
           ${code}
           return undefined;
         })();

@@ -157,12 +157,17 @@ export function registerSessionTools(server: McpServer) {
           const age = new Date().getTime() - session.createdAt.getTime();
           const lastAccessed = new Date().getTime() - session.lastAccessedAt.getTime();
           
-          // Filter out internal properties and functions
+          // Filter out internal properties and built-in globals
           const variables = Object.keys((session.context as Record<string, unknown>) || {})
             .filter(key => 
-              // Filter out internal properties that start with _ or are functions
+              // Filter out internal properties and Node.js globals
               !key.startsWith('_') && 
-              typeof (session.context as Record<string, unknown>)[key] !== 'function'
+              typeof (session.context as Record<string, unknown>)[key] !== 'function' &&
+              ![
+                'global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
+                'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
+                'performance', 'fetch', 'console'
+              ].includes(key)
             );
           
           return `Session ID: ${session.id}
@@ -269,12 +274,17 @@ Variables: ${variables.join(', ') || 'none'}
         const lastAccessed = new Date().getTime() - session.lastAccessedAt.getTime();
         
         // Get variables in the context
-        // Filter out internal properties and functions
+        // Filter out internal properties and built-in globals
         const contextVars = Object.entries((session.context as Record<string, unknown>) || {})
           .filter(([key, value]) => 
-            // Filter out internal properties that start with _ or are functions
+            // Filter out internal properties and Node.js globals
             !key.startsWith('_') && 
-            typeof value !== 'function'
+            typeof value !== 'function' &&
+            ![
+              'global', 'queueMicrotask', 'clearImmediate', 'setImmediate', 'structuredClone', 
+              'clearInterval', 'clearTimeout', 'setInterval', 'setTimeout', 'atob', 'btoa', 
+              'performance', 'fetch', 'console'
+            ].includes(key)
           );
             
         const variables = contextVars
