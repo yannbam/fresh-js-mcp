@@ -90,6 +90,18 @@ export interface PackageResult {
 }
 
 /**
+ * TypeScript diagnostic information
+ */
+export interface TypeScriptDiagnostic {
+  /** Diagnostic code */
+  code: number;
+  /** Diagnostic message */
+  message: string;
+  /** Diagnostic category (Error, Warning, etc.) */
+  category: string;
+}
+
+/**
  * Result from TypeScript transpilation
  */
 export interface TranspilationResult {
@@ -102,5 +114,5 @@ export interface TranspilationResult {
   /** Source map for the transpiled code */
   sourceMap?: string;
   /** Diagnostics from the TypeScript compiler */
-  diagnostics?: unknown[];
+  diagnostics?: TypeScriptDiagnostic[];
 }
