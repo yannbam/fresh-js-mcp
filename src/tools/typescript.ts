@@ -98,6 +98,7 @@ export function registerTypeScriptTools(server: McpServer) {
         }
         
         // Then execute the JavaScript
+        // The transpiled JavaScript code should already be executable
         const executeResult = await executeJavaScript(
           transpileResult.jsCode,
           {},
@@ -116,7 +117,7 @@ export function registerTypeScriptTools(server: McpServer) {
         let response = '';
         
         // Add console output if any
-        if (executeResult.consoleOutput) {
+        if (executeResult.consoleOutput && executeResult.consoleOutput.trim()) {
           response += `Console Output:\n${executeResult.consoleOutput}\n\n`;
         }
         

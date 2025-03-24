@@ -78,7 +78,7 @@ export class PackageManager {
   }
   
   /**
-   * Find a package in the node_modules directory
+   * Find a package in the package cache directory
    * 
    * @param packageName Name of the package to find
    * @returns Path to the package or undefined if not found
@@ -88,15 +88,8 @@ export class PackageManager {
       await this.initialize();
     }
     
-    // Check in node_modules
-    const packagePath = path.join('node_modules', packageName);
-    
-    try {
-      await fs.access(packagePath);
-      return packagePath;
-    } catch {
-      return undefined;
-    }
+    // First check in the cache directory - this is where we install packages
+    return this.findPackageInCache(packageName);
   }
   
   /**

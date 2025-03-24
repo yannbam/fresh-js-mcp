@@ -96,7 +96,7 @@ export async function executeJavaScript(
     const contextKeys = Object.keys(executionContext);
     const contextValues = Object.values(executionContext);
     
-    // Wrap the code to properly handle return statements
+    // Wrap the code to properly handle statements (not just expressions)
     let wrappedCode: string;
     
     if (mergedOptions.awaitPromises) {
@@ -104,7 +104,8 @@ export async function executeJavaScript(
       wrappedCode = `
         return (async function() {
           try {
-            return ${code};
+            ${code}
+            return undefined;
           } catch (e) {
             throw e;
           }
@@ -155,7 +156,8 @@ export async function executeJavaScript(
       // For regular synchronous code
       wrappedCode = `
         return (function() {
-          return ${code};
+          ${code}
+          return undefined;
         })();
       `;
       
