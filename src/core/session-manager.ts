@@ -81,9 +81,38 @@ export class SessionManager {
     // Update last accessed time
     session.lastAccessedAt = new Date();
     
+    // If the session has installed modules, inject the require function manually
+    let injectedCode = code;
+    
+    if (session.modulesPath && session.installedModules && session.installedModules.length > 0) {
+      // Add code at the beginning to create a custom require function
+      injectedCode = `
+        // Setup custom require for modules
+        const require = function(id) {
+          // Predefined modules for this session
+          const moduleMap = {
+            ${session.installedModules.map(moduleName => 
+              `'${moduleName}': global.require('${session.modulesPath!}/node_modules/${moduleName}')`
+            ).join(',\n            ')}
+          };
+          
+          // Check if it's in our map
+          if (moduleMap[id]) {
+            return moduleMap[id];
+          }
+          
+          // Otherwise, try normal require
+          return global.require(id);
+        };
+        
+        // Main code starts here
+        ${code}
+      `;
+    }
+    
     // Every time a session is executed, we create a closure with access to the session's context
     // This lets user code access variables defined in previous executions
-    const result = await executeJavaScript(code, session.context as Record<string, unknown>, options);
+    const result = await executeJavaScript(injectedCode, session.context as Record<string, unknown>, options);
     
     // Update the session history
     session.history.push({

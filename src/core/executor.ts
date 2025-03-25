@@ -1,5 +1,7 @@
 // No longer using VM2 for sandboxing
 import { ExecutionResult, ExecutionOptions } from '../types';
+import * as path from 'path';
+import * as vm from 'vm';
 
 /**
  * Default execution options
