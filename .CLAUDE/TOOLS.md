@@ -35,6 +35,8 @@ node js-mcp-runner.js [options]
 
 ### Examples
 
+See RUNNER.md for details!
+
 ```bash
 # Execute JavaScript code
 node js-mcp-runner.js --exec "const x = 42; return x;"
