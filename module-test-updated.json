@@ -1,0 +1,43 @@
+[
+  {
+    "type": "session-create",
+    "name": "moduleTest"
+  },
+  {
+    "type": "session-execute",
+    "name": "moduleTest",
+    "code": "console.log('Testing module importing system'); return 'Session created';"
+  },
+  {
+    "type": "session-execute",
+    "name": "moduleTest",
+    "code": "try { return require('lodash'); } catch (e) { return e.message; }"
+  },
+  {
+    "type": "execute",
+    "code": "js-installModule({ sessionId: sessionManager.getAllSessions()[0].id, name: 'lodash' })"
+  },
+  {
+    "type": "execute",
+    "code": "js-listModules({ sessionId: sessionManager.getAllSessions()[0].id })"
+  },
+  {
+    "type": "session-execute",
+    "name": "moduleTest",
+    "code": "const _ = require('lodash'); return _.chunk(['a', 'b', 'c', 'd'], 2);"
+  },
+  {
+    "type": "session-execute",
+    "name": "moduleTest",
+    "code": "const _ = require('lodash'); return _.map([1, 2, 3], n => n * 2);"
+  },
+  {
+    "type": "execute",
+    "code": "js-installModule({ sessionId: sessionManager.getAllSessions()[0].id, name: 'moment' })"
+  },
+  {
+    "type": "session-execute",
+    "name": "moduleTest",
+    "code": "const moment = require('moment'); return moment().format('YYYY-MM-DD');"
+  }
+]

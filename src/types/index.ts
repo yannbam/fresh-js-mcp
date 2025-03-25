@@ -57,6 +57,10 @@ export interface Session {
     /** When the execution occurred */
     timestamp: Date;
   }>;
+  /** Path to the session's module directory */
+  modulesPath?: string;
+  /** List of installed modules in this session */
+  installedModules?: string[];
 }
 
 /**
