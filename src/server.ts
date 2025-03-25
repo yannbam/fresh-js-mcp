@@ -5,6 +5,7 @@ import { registerSessionTools } from './tools/repl';
 // File system operations removed as Claude already has filesystem tools
 import { registerPackageTools } from './tools/packages';
 import { registerTypeScriptTools } from './tools/typescript';
+import { registerModuleTools } from './tools/modules';
 
 /**
  * Create and configure the MCP server
@@ -40,6 +41,7 @@ export async function createServer() {
   // File tools removed as Claude already has filesystem tools
   registerPackageTools(server);
   registerTypeScriptTools(server);
+  registerModuleTools(server);
 
   return server;
 }
