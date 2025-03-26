@@ -47,13 +47,12 @@ export async function createServer() {
 }
 
 /**
- * Start the MCP server with stdio transport
+ * Start the MCP server with stdio transport (standard MCP mode)
  */
-export async function startServer() {
-  const server = await createServer();
+export async function startMcpServer(server: McpServer) {
   const transport = new StdioServerTransport();
   
-  console.error('Starting JavaScript MCP server...');
+  console.error('Starting JavaScript MCP server in standard mode...');
   
   try {
     await server.connect(transport);
@@ -64,4 +63,13 @@ export async function startServer() {
   }
   
   return server;
+}
+
+/**
+ * Legacy function maintained for backward compatibility
+ * @deprecated Use createServer() and startMcpServer() separately
+ */
+export async function startServer() {
+  const server = await createServer();
+  return startMcpServer(server);
 }
