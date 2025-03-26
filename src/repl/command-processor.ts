@@ -4,16 +4,7 @@
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { z } from 'zod';
-
-/**
- * Command result interface
- */
-export interface CommandResult {
-  success: boolean;
-  data?: unknown;
-  error?: Error | string;
-}
+import { handlers, CommandResult } from './tool-handlers';
 
 /**
  * Process a command string and execute it against the MCP server
@@ -30,90 +21,15 @@ export async function processCommand(
     // Parse command and arguments
     const { command, args } = parseCommand(commandStr);
     
-    // Execute the command (placeholder implementation)
-    console.error(`Processing command: ${command}`);
-    
-    switch (command) {
-      case 'js-status':
-        return await executeJsStatus(server);
-        
-      case 'js-execute':
-        if (!args.code) {
-          return { success: false, error: 'Code parameter is required' };
-        }
-        return await executeJsCode(server, args);
-      
-      case 'js-createSession':
-        return await executeTool(server, 'js-createSession', args);
-      
-      case 'js-executeInSession':
-        if (!args.sessionId) {
-          return { success: false, error: 'sessionId parameter is required' };
-        }
-        if (!args.code) {
-          return { success: false, error: 'code parameter is required' };
-        }
-        return await executeTool(server, 'js-executeInSession', args);
-      
-      case 'js-deleteSession':
-        if (!args.sessionId) {
-          return { success: false, error: 'sessionId parameter is required' };
-        }
-        return await executeTool(server, 'js-deleteSession', args);
-      
-      case 'js-sessionInfo':
-        if (!args.sessionId) {
-          return { success: false, error: 'sessionId parameter is required' };
-        }
-        return await executeTool(server, 'js-sessionInfo', args);
-      
-      case 'js-listSessions':
-        return await executeTool(server, 'js-listSessions', args);
-      
-      case 'js-transpile':
-        if (!args.code) {
-          return { success: false, error: 'code parameter is required' };
-        }
-        return await executeTool(server, 'js-transpile', args);
-      
-      case 'js-executeTypeScript':
-        if (!args.code) {
-          return { success: false, error: 'code parameter is required' };
-        }
-        return await executeTool(server, 'js-executeTypeScript', args);
-      
-      case 'js-installPackage':
-        if (!args.name) {
-          return { success: false, error: 'name parameter is required' };
-        }
-        return await executeTool(server, 'js-installPackage', args);
-      
-      case 'js-findPackage':
-        if (!args.name) {
-          return { success: false, error: 'name parameter is required' };
-        }
-        return await executeTool(server, 'js-findPackage', args);
-      
-      case 'js-installModule':
-        if (!args.sessionId) {
-          return { success: false, error: 'sessionId parameter is required' };
-        }
-        if (!args.name) {
-          return { success: false, error: 'name parameter is required' };
-        }
-        return await executeTool(server, 'js-installModule', args);
-      
-      case 'js-listModules':
-        if (!args.sessionId) {
-          return { success: false, error: 'sessionId parameter is required' };
-        }
-        return await executeTool(server, 'js-listModules', args);
-        
-      default:
-        return {
-          success: false,
-          error: `Unknown command: ${command}`
-        };
+    // Check if we have a handler for this command
+    if (handlers[command]) {
+      // Execute the command handler
+      return await handlers[command](args);
+    } else {
+      return {
+        success: false,
+        error: `Unknown command: ${command}`
+      };
     }
   } catch (error) {
     return {
@@ -196,108 +112,4 @@ function parseCommand(commandStr: string): { command: string; args: Record<strin
   }
   
   return { command, args };
-}
-
-/**
- * Execute js-status command
- */
-async function executeJsStatus(server: McpServer): Promise<CommandResult> {
-  try {
-    // Get the tool execution function
-    const tools = server.getTools();
-    const statusTool = tools.find(t => t.name === 'js-status');
-    
-    if (!statusTool) {
-      return { 
-        success: false, 
-        error: 'js-status tool not found on server' 
-      };
-    }
-    
-    // Call the tool directly
-    const result = await statusTool.handler({});
-    
-    return {
-      success: true,
-      data: result
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error : String(error)
-    };
-  }
-}
-
-/**
- * Execute js-execute command
- */
-async function executeJsCode(
-  server: McpServer,
-  args: Record<string, unknown>
-): Promise<CommandResult> {
-  try {
-    // Get the tool execution function
-    const tools = server.getTools();
-    const executeTool = tools.find(t => t.name === 'js-execute');
-    
-    if (!executeTool) {
-      return { 
-        success: false, 
-        error: 'js-execute tool not found on server' 
-      };
-    }
-    
-    // Call the tool directly
-    const result = await executeTool.handler({
-      code: String(args.code || ''),
-      timeout: typeof args.timeout === 'number' ? args.timeout : undefined,
-      awaitPromises: typeof args.awaitPromises === 'boolean' ? args.awaitPromises : undefined
-    });
-    
-    return {
-      success: true,
-      data: result
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error : String(error)
-    };
-  }
-}
-
-/**
- * Execute any MCP tool by name
- */
-async function executeTool(
-  server: McpServer,
-  toolName: string,
-  args: Record<string, unknown>
-): Promise<CommandResult> {
-  try {
-    // Get the tool execution function
-    const tools = server.getTools();
-    const tool = tools.find(t => t.name === toolName);
-    
-    if (!tool) {
-      return { 
-        success: false, 
-        error: `Tool ${toolName} not found on server` 
-      };
-    }
-    
-    // Call the tool directly
-    const result = await tool.handler(args);
-    
-    return {
-      success: true,
-      data: result
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error : String(error)
-    };
-  }
 }

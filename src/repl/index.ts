@@ -113,9 +113,10 @@ async function startInteractiveRepl(server: McpServer): Promise<void> {
       
       if (result.success) {
         // Format and display the result
-        if (result.data) {
-          const content = result.data.content || [];
-          content.forEach((item: any) => {
+        if (result.data && result.data.content) {
+          // Handle different result data formats
+          const content = result.data.content;
+          (Array.isArray(content) ? content : []).forEach((item: any) => {
             if (item.type === 'text') {
               console.log(item.text);
             } else {
