@@ -1,5 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { CallToolRequestSchema, ListToolsRequestSchema, ListResourcesRequestSchema,ListPromptsRequestSchema, ToolSchema
+} from "@modelcontextprotocol/sdk/types.js";
+
 import { registerExecutionTools } from './tools/execute';
 import { registerSessionTools } from './tools/repl';
 // File system operations removed as Claude already has filesystem tools
@@ -15,8 +18,14 @@ export async function createServer() {
   const server = new McpServer({
     name: 'js-mcp',
     version: '0.1.0',
-    instructions: 'JavaScript MCP server for executing JavaScript code through MCP tool calls',
-  });
+    instructions: 'JavaScript MCP server for executing JavaScript code through MCP tool calls'},
+    {
+      capabilities: {
+        resources: {listChanged: true},
+        tools: {listChanged: true},
+        prompts: {listChanged: true},
+      }
+    });
 
   // Add a simple status tool for testing
   server.tool(
@@ -42,6 +51,14 @@ export async function createServer() {
   registerPackageTools(server);
   registerTypeScriptTools(server);
   registerModuleTools(server);
+
+  server.server.setRequestHandler(ListResourcesRequestSchema, async (request) => {
+    return {resources: []};
+  });
+
+  server.server.setRequestHandler(ListPromptsRequestSchema, async (request) => {
+    return {prompts: []};
+  });
 
   return server;
 }
