@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { processCommand } from './command-processor';
+import { setupPipeInterface } from './pipe-handler';
 
 // Define server mode options
 export enum ServerMode {
@@ -156,39 +157,39 @@ async function startPipeRepl(server: McpServer, customPipePath?: string): Promis
   const inPipePath = path.join(baseDir, '.js-mcp-in');
   const outPipePath = path.join(baseDir, '.js-mcp-out');
   
-  // Create the pipes if they don't exist
-  createPipeIfNotExists(inPipePath);
-  createPipeIfNotExists(outPipePath);
+  // Set up the pipe interface
+  await setupPipeInterface(server, inPipePath, outPipePath);
   
-  console.log(`Input pipe: ${inPipePath}`);
-  console.log(`Output pipe: ${outPipePath}`);
-  
-  // Set up pipe monitoring (to be implemented)
-  console.log('Pipe interface not yet fully implemented');
+  console.log('Named pipe interface is ready. Use the following paths:');
+  console.log(`Input pipe (commands): ${inPipePath}`);
+  console.log(`Output pipe (responses): ${outPipePath}`);
+  console.log('\nExample usage:');
+  console.log(`echo '{"id":"1","command":"js-status"}' > ${inPipePath}`);
+  console.log(`cat ${outPipePath}`);
   
   // Keep the process running
   process.stdin.resume();
-}
-
-/**
- * Create a named pipe if it doesn't already exist
- * 
- * @param pipePath Path to the pipe
- */
-function createPipeIfNotExists(pipePath: string): void {
-  if (!fs.existsSync(pipePath)) {
-    try {
-      // Create pipe with 0666 permissions
-      fs.mkdirSync(path.dirname(pipePath), { recursive: true });
-      
-      // Node.js doesn't have direct mkfifo, so we'll note this
-      console.error(`Note: Named pipe ${pipePath} doesn't exist and requires mkfifo.`);
-      console.error(`Please run 'mkfifo ${pipePath}' manually.`);
-    } catch (error) {
-      console.error(`Error creating directory for pipe ${pipePath}:`, error);
-      throw error;
+  
+  // Set up basic console interaction
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  
+  rl.on('line', (line) => {
+    if (line.trim() === 'exit') {
+      console.log('Exiting pipe mode...');
+      process.exit(0);
+    } else if (line.trim() === 'help') {
+      console.log('\nPipe Mode Commands:');
+      console.log('  exit - Exit the server');
+      console.log('  help - Show this help\n');
+    } else {
+      console.log('Server is running in pipe mode. Use named pipes for communication.');
+      console.log(`Input: ${inPipePath}`);
+      console.log(`Output: ${outPipePath}`);
     }
-  }
+  });
 }
 
 /**
