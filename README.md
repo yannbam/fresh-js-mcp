@@ -8,9 +8,8 @@ A JavaScript execution server for the Model Context Protocol (MCP), allowing AI 
 - **REPL Sessions**: Maintain stateful REPL sessions across multiple interactions
 - **TypeScript Support**: Run TypeScript code with automatic transpilation
 - **NPM Integration**: Import and use npm packages dynamically
-
-- **Module Importing**: Import modules from Node.js and local files
-- **Error Handling**: Comprehensive error handling with formatted stack traces
+- **Interactive Mode**: Direct command line REPL interface for interacting with the server
+- **Named Pipe Interface**: Use named pipes for communication with external processes
 
 ## Installation
 
@@ -29,9 +28,28 @@ npm run build
 ## Usage
 
 ```bash
-# Start the MCP server
+# Start the MCP server in standard mode
 npm start
+
+# Start in interactive REPL mode
+node dist/index.js --interactive
+
+# Start with named pipe interface
+node dist/index.js --pipe
+
+# See all options
+node dist/index.js --help
 ```
+
+### Operating Modes
+
+The server supports three operating modes:
+
+1. **Standard MCP Mode** (default): Communicates via stdio using the Model Context Protocol
+2. **Interactive Mode**: Provides a REPL interface for direct user interaction
+3. **Pipe Mode**: Uses named pipes for communication with external processes
+
+See the [examples directory](./examples/README.md) for detailed instructions on using these modes.
 
 ### Available Tools
 
