@@ -68,7 +68,17 @@ function ensurePipeExists(pipePath: string): void {
     }
   } catch (error) {
     console.error(`Error ensuring pipe exists at ${pipePath}:`, error);
-    throw error;
+    
+    // Instead of throwing, try to create a regular file as fallback
+    try {
+      console.error(`Attempting to create a regular file as fallback at ${pipePath}`);
+      fs.mkdirSync(path.dirname(pipePath), { recursive: true });
+      fs.writeFileSync(pipePath, '');
+      console.error(`Created regular file at ${pipePath} (not a named pipe - features will be limited)`);
+    } catch (fallbackError) {
+      console.error(`Failed to create fallback file:`, fallbackError);
+      throw error; // Throw the original error
+    }
   }
 }
 
@@ -82,23 +92,31 @@ function createPipe(pipePath: string): void {
     // Create directory if needed
     fs.mkdirSync(path.dirname(pipePath), { recursive: true });
     
-    // Create pipe using mkfifo command
-    const result = spawn('mkfifo', [pipePath]);
+    console.error(`Creating named pipe at ${pipePath}`);
+    console.error('NOTE: In production environments, you need to create pipes manually with:');
+    console.error(`mkfifo ${pipePath}`);
     
-    result.on('close', (code) => {
-      if (code !== 0) {
-        console.error(`mkfifo process exited with code ${code}`);
-      } else {
-        console.error(`Created pipe: ${pipePath}`);
-      }
-    });
-    
-    // Wait a moment for the pipe to be created
-    setTimeout(() => {
-      if (!fs.existsSync(pipePath)) {
-        console.error(`Failed to create pipe at ${pipePath}`);
-      }
-    }, 500);
+    // Try creating the pipe, but don't throw if it fails
+    try {
+      // Create pipe using mkfifo command
+      const result = spawn('mkfifo', [pipePath]);
+      
+      result.on('close', (code) => {
+        if (code !== 0) {
+          console.error(`mkfifo process exited with code ${code}`);
+          // Create a regular file as fallback
+          fs.writeFileSync(pipePath, '');
+          console.error(`Created regular file at ${pipePath} (not a named pipe - features will be limited)`);
+        } else {
+          console.error(`Created pipe: ${pipePath}`);
+        }
+      });
+    } catch (mkfifoError) {
+      console.error(`Error creating pipe with mkfifo:`, mkfifoError);
+      // Create a regular file as fallback
+      fs.writeFileSync(pipePath, '');
+      console.error(`Created regular file at ${pipePath} (not a named pipe - features will be limited)`);
+    }
   } catch (error) {
     console.error(`Error creating pipe at ${pipePath}:`, error);
     throw error;
@@ -125,8 +143,10 @@ function setupInputPipe(
       let buffer = '';
       
       // Handle data chunks
-      inputStream.on('data', async (chunk: string) => {
-        buffer += chunk;
+      inputStream.on('data', (chunk) => {
+        // Convert Buffer to string if needed
+        const chunkStr = typeof chunk === 'string' ? chunk : chunk.toString('utf8');
+        buffer += chunkStr;
         
         // Process complete messages (one per line)
         const lines = buffer.split('\n');
