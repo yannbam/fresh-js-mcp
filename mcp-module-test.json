@@ -1,0 +1,62 @@
+[
+  {
+    "description": "Create a test session",
+    "tool": "js-createSession",
+    "parameters": {}
+  },
+  {
+    "description": "Try using require before installing any modules",
+    "tool": "js-executeInSession",
+    "parameters": {
+      "sessionId": "{SESSION_ID}",
+      "code": "try { return require('lodash'); } catch(e) { return e.message; }"
+    }
+  },
+  {
+    "description": "Install lodash module",
+    "tool": "js-installModule",
+    "parameters": {
+      "sessionId": "{SESSION_ID}",
+      "name": "lodash"
+    }
+  },
+  {
+    "description": "List installed modules",
+    "tool": "js-listModules",
+    "parameters": {
+      "sessionId": "{SESSION_ID}"
+    }
+  },
+  {
+    "description": "Use lodash to chunk an array",
+    "tool": "js-executeInSession",
+    "parameters": {
+      "sessionId": "{SESSION_ID}",
+      "code": "const _ = require('lodash'); return _.chunk(['a', 'b', 'c', 'd'], 2);"
+    }
+  },
+  {
+    "description": "Use lodash to map an array",
+    "tool": "js-executeInSession",
+    "parameters": {
+      "sessionId": "{SESSION_ID}",
+      "code": "const _ = require('lodash'); return _.map([1, 2, 3], n => n * 2);"
+    }
+  },
+  {
+    "description": "Install moment module",
+    "tool": "js-installModule",
+    "parameters": {
+      "sessionId": "{SESSION_ID}",
+      "name": "moment"
+    }
+  },
+  {
+    "description": "Use moment to format a date",
+    "tool": "js-executeInSession",
+    "parameters": {
+      "sessionId": "{SESSION_ID}",
+      "code": "const moment = require('moment'); return moment().format('YYYY-MM-DD');"
+    }
+  }
+]
